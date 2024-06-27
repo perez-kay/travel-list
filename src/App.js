@@ -26,7 +26,9 @@ function PackingList() {
 }
 function Stats() {
   return (
-    <footer>You have X items on your list and you already packed X (x%)</footer>
+    <footer className="stats">
+      You have X items on your list and you already packed X (x%)
+    </footer>
   );
 }
 
