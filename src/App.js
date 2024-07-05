@@ -11,12 +11,24 @@ function App() {
     setItems((items) => items.filter((item) => item.id !== id));
   }
 
+  function handleToggleItem(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
+
   return (
     <div className="app">
       <Logo />
       <Form onAddItems={handleAddItems} />
-      <PackingList items={items} onDeleteItems={handleDeleteItem} />
-      <Stats />
+      <PackingList
+        items={items}
+        onDeleteItems={handleDeleteItem}
+        onToggleItem={handleToggleItem}
+      />
+      <Stats items={items} />
     </div>
   );
 }
@@ -63,22 +75,31 @@ function Form({ onAddItems }) {
   );
 }
 
-function PackingList({ items, onDeleteItems }) {
+function PackingList({ items, onDeleteItems, onToggleItem }) {
   return (
     <div className="list">
       <ul>
         {items.map((item) => (
-          <Item item={item} onDeleteItem={onDeleteItems} key={item.id} />
+          <Item
+            item={item}
+            onDeleteItem={onDeleteItems}
+            key={item.id}
+            onToggleItem={onToggleItem}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-function Item({ item, onDeleteItem }) {
+function Item({ item, onDeleteItem, onToggleItem }) {
   return (
     <li>
-      <input type="checkbox" name="" id="" />
+      <input
+        type="checkbox"
+        value={item.packed}
+        onChange={() => onToggleItem(item.id)}
+      />
       <span style={item.packed ? { textDecoration: 'line-through' } : {}}>
         {item.quantity} {item.description}
       </span>
@@ -87,10 +108,23 @@ function Item({ item, onDeleteItem }) {
   );
 }
 
-function Stats() {
+function Stats({ items }) {
+  if (!items.length)
+    return <footer className="stats">Start adding some items!</footer>;
+  const numItems = items.length;
+  const numPacked = items.reduce(
+    (acc, item) => (item.packed === true ? acc + 1 : acc),
+    0
+  );
+  const percentage = Math.round((numPacked / numItems) * 100);
+  console.log(typeof percentage);
   return (
     <footer className="stats">
-      You have X items on your list and you already packed X (x%)
+      {percentage === 100
+        ? 'You got everything! Ready to go!'
+        : `You have ${numItems} items on your list and you already packed ${numPacked} (${
+            isNaN(percentage) ? 0 : percentage
+          }%)`}
     </footer>
   );
 }
